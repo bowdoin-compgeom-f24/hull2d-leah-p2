@@ -112,19 +112,109 @@ void display(void);
 void keypress(unsigned char key, int x, int y);
 
 // initializer function
+void initialize_points_heart(vector<point2d>& pts, int n);
+void initialize_points_stripes(vector<point2d>& pts, int n);
 void initialize_points_circle(vector<point2d>& pts, int n); 
 void initialize_points_horizontal_line(vector<point2d>&pts, int n);
 void initialize_points_random(vector<point2d>&pts, int n) ;
 void initialize_points_cross(vector<point2d>&pts, int n) ;
+void initialize_points_diamond(vector<point2d>&pts, int n) ;
+void initialize_points_honeycomb(vector<point2d> &pts, int n) ;
+void initializer_square(vector<point2d>& pts, int n_additional_points) ;
+void initialize_points_hexagon(vector<point2d>& pts, int n) ;
+void initialize_points_wave(vector<point2d>& pts, int n);
+void initialize_points_tic_tac_toe(vector<point2d> &pts, int n);
 
-//you'll add more 
 
 
-/********************************************************************/
+/* ****************************** */
+/* Initializes pts with n points on the sides of a square, rotated 45 degrees from the x and y axes.  The square
+   The square is centered in the window with sidelength WINSIZE/4 * SQRT(2) so that it has width WINSIZE/2
+*/ 
+void initialize_points_diamond(vector<point2d>& pts, int n) {
+  printf("\ninitialize points square\n"); 
+
+  //clear the vector just to be safe 
+  pts.clear(); 
+  int width = WINDOWSIZE / 2; //from left corner to right corner (so sidelength is sqrt(2)/2 times this)
+  int center = WINDOWSIZE / 2;
+
+  //4 sides of the square w/ evenly distrubuted points, but the square is rotated 45 degrees CCW
+  //for loop evenly distributes points along each of the four edges at once, distrubting in clockwise direction
+  for (int i = 0; i < n/4; i++){
+    double offset = (double)2 / n * width * i; // to distribute 1/4 of all the points at equal intervals
+    
+    point2d pNW; //point on northwest edge
+    pNW.x = center - ((double)width / 2) + offset;
+    pNW.y = center + offset;
+    pts.push_back(pNW);
+
+    point2d pSE; //point on southeast edge
+    pSE.x = center + ((double)width / 2) - offset;
+    pSE.y = center - offset;
+    pts.push_back(pSE);
+
+    point2d pSW; //point on southwest edge
+    pSW.x = center - offset;
+    pSW.y = center - ((double)width / 2) + offset;
+    pts.push_back(pSW);
+
+    point2d pNE; //point on northeast edge
+    pNE.x = center + offset;
+    pNE.y = center + ((double)width / 2) - offset;
+    pts.push_back(pNE);
+  }
+
+  //put the extra points in the middle:
+  for (int i = 0; i < (n % 4); i++){
+    point2d p;
+    p.x = center - ((double)width / 2) + (i+1)*(width / 4);
+    p.y = center;
+    pts.push_back(p);
+  }
+}
+
+/* ****************************** */
+/* Initializes pts with n points on a heart. The points are in the
+   range [0, WINSIZE] x [0, WINSIZE].
+*/ 
+void initialize_points_heart(vector<point2d>& pts, int n) {
+  printf("\ninitialize points heart\n"); 
+  pts.clear();
+  double step = WINDOWSIZE/n;
+
+  point2d p;
+  for (int i = 0; i < n; i++) {
+    float t = step*i;
+    p.x = (16*pow(sin(t), 3))*WINDOWSIZE/50 + WINDOWSIZE/2;
+    p.y = (13*cos(t) - 5*cos(2*t) - 2*cos(3*t) - cos(4*t))*WINDOWSIZE/50 + WINDOWSIZE/2;
+    pts.push_back(p); 
+  }
+}
 
 
+/* ****************************** */
+/* Initializes pts with n points on 2 diagonal stripes. The points are in the
+   range [0, WINSIZE] x [0, WINSIZE].
+*/ 
+void initialize_points_stripes(vector<point2d>& pts, int n) {
+  printf("\ninitialize points stripes\n"); 
+  pts.clear();
+  double step = WINDOWSIZE/n;
+  n = n/2;
 
-
+  point2d p;
+  point2d q; 
+  for (int i = 0; i < n; i++) {
+    float t = step*i;
+    p.x = t + WINDOWSIZE/4;
+    p.y = t + WINDOWSIZE/5;
+    q.x = t + WINDOWSIZE/4;
+    q.y = t + 2*WINDOWSIZE/5;
+    pts.push_back(p); 
+    pts.push_back(q); 
+  }
+}
 
 
 /* ****************************** */
@@ -158,9 +248,6 @@ void initialize_points_circle(vector<point2d>& pts, int n) {
 }
 
 
-
-
-
 /* ****************************** */
 /* Initializes pts with n points on a line.  The points are in the
    range [0, WINSIZE] x [0, WINSIZE].
@@ -178,7 +265,6 @@ void initialize_points_horizontal_line(vector<point2d>& pts, int n) {
     pts.push_back(p); 
   }
 }
-
 
 
 
@@ -234,7 +320,179 @@ void initialize_points_cross(vector<point2d>& pts, int n) {
 
 }
 
+void initialize_points_tic_tac_toe(vector<point2d> &pts, int n)
+{
+    printf("\ninitialize points tic-tac-toe\n");
+    // clear the vector just to be safe
+    pts.clear();
 
+    point2d p;
+    int step = WINDOWSIZE / 3;
+    int border = WINDOWSIZE / 10;
+
+    // vertical lines
+    for (int i = 0; i < n / 4; i++)
+    {
+        // first vertical line
+        p.x = step;
+        p.y = border + (WINDOWSIZE - 2 * border) * i / (n / 4 - 1);
+        pts.push_back(p);
+
+        // second vertical line
+        p.x = 2 * step;
+        pts.push_back(p);
+    }
+
+    // horizontal lines
+    for (int i = 0; i < n / 4; i++)
+    {
+        // first horizontal line
+        p.x = border + (WINDOWSIZE - 2 * border) * i / (n / 4 - 1);
+        p.y = step;
+        pts.push_back(p);
+
+        // second horizontal line
+        p.y = 2 * step;
+        pts.push_back(p);
+    }
+}
+
+/*this initializer will always make 25 hardcoded points that are meant to test collinearity
+ * user can input a number for parameter n and n points will be created in addition to the
+ * 25 original points 
+ */
+void initializer_square(vector<point2d>& pts, int n_additional_points){
+  
+  pts.clear(); //should be empty, but clear it to be safe
+  for(int i = 200; i <= 300; i+=20){
+    for(int j = 200; j <= 300; j+=20){
+      point2d p;
+      p.x = i;
+      p.y = j;
+      pts.push_back(p);
+    }
+  }
+  //we are using user input to create n points in addition to our hard coded collinear points
+  for (int i=0; i<(n_additional_points); i++) {
+    point2d p_rand;
+    p_rand.x = (int)200 + random() % ((int)(100)); 
+    p_rand.y =  (int)200 + random() % ((int)(100));
+    pts.push_back(p_rand); 
+  }
+}
+
+// Helper function to check if a point is inside a convex polygon
+bool is_point_on_polygon(const point2d& p, const vector<point2d>& polygon) {
+    int n = polygon.size();
+    double angle = 0;
+    for (int i = 0; i < n; i++) {
+        point2d p1 = {polygon[i].x - p.x, polygon[i].y - p.y};
+        point2d p2 = {polygon[(i + 1) % n].x - p.x, polygon[(i + 1) % n].y - p.y};
+        double cross = p1.x * p2.y - p2.x * p1.y;
+        double dot = p1.x * p2.x + p1.y * p2.y;
+        angle += atan2(cross, dot);
+    }
+    return fabs(fabs(angle) - 2 * M_PI) < 1e-6;  // Check if the angle is approximately 2π
+}
+
+// Function to initialize points in a wave shape based on the sine function
+void initialize_points_wave(vector<point2d>& pts, int n){
+printf("\ninitialize points wave\n");
+  //clear the vector just to be safe
+  pts.clear();
+  double step = (double)WINDOWSIZE / n;
+  double amplitude = 100;  // Height of the wave
+  double frequency = 0.1;  // Controls the number of waves
+  point2d p;
+  for (int i = 0; i < n; ++i) {
+    p.x = i * step;
+    p.y = WINDOWSIZE / 2 + amplitude * sin(frequency * p.x);
+    pts.push_back(p);
+  }
+}
+
+// Function to initialize points in a hexagon
+void initialize_points_hexagon(vector<point2d>& pts, int n) {
+    pts.clear();
+    // Define the center of the hexagon
+    double centerX = WINDOWSIZE / 2.0;
+    double centerY = WINDOWSIZE / 2.0;
+    // Set the radius of the hexagon (distance from center to any vertex)
+    double radius = WINDOWSIZE / 4.0;
+    // Number of sides for the hexagon
+    int numSides = 6;
+    // Angle between each vertex
+    double angleStep = 2 * M_PI / numSides;
+    // Add hexagon vertices
+    vector<point2d> hexagonVertices;
+    for (int i = 0; i < numSides; ++i) {
+        point2d p;
+        p.x = centerX + radius * cos(i * angleStep);
+        p.y = centerY + radius * sin(i * angleStep);
+        pts.push_back(p);  // Store the hexagon vertices in the pts list
+        hexagonVertices.push_back(p);  // Store the hexagon vertices separately for point-in-polygon check
+    }
+    // Add random points inside the hexagon boundary
+    int generatedPoints = 0;
+    while (generatedPoints < n) {
+        point2d p;
+        // Generate a random point within a bounding box around the hexagon
+        p.x = centerX + (((double)rand() / RAND_MAX) * 2 - 1) * radius;
+        p.y = centerY + (((double)rand() / RAND_MAX) * 2 - 1) * radius;
+        if (is_point_on_polygon(p, hexagonVertices)) {
+            pts.push_back(p);
+            generatedPoints++;
+        }
+    }
+    printf("Hexagon: initialized with %lu points\n", pts.size());
+}
+
+void initialize_points_honeycomb(vector<point2d> &pts, int n)
+{
+    printf("\ninitialize points honeycomb\n");
+    // clear the vector just to be safe
+    pts.clear();
+
+    if (n < 6)
+    {
+        printf("n must be at least 6\n");
+        return;
+    }
+
+    point2d p;
+    int step = WINDOWSIZE / 3;
+
+    // center of the honeycomb
+    double centerX = WINDOWSIZE / 2;
+    double centerY = WINDOWSIZE / 2;
+
+    // generate points for the hexagon
+    for (int i = 0; i < n; i++)
+    {
+        double angle = 2 * M_PI * i / n;
+
+        if (i % (n / 6) == 0)
+        {
+            // Corner points
+            p.x = centerX + step * cos(angle);
+            p.y = centerY + step * sin(angle);
+        }
+        else
+        {
+            // points along the edges
+            double t = (i % (n / 6)) / (double)(n / 6);
+            int corner = i / (n / 6);
+            double x1 = centerX + step * cos(2 * M_PI * corner / 6);
+            double y1 = centerY + step * sin(2 * M_PI * corner / 6);
+            double x2 = centerX + step * cos(2 * M_PI * (corner + 1) / 6);
+            double y2 = centerY + step * sin(2 * M_PI * (corner + 1) / 6);
+            p.x = x1 + t * (x2 - x1);
+            p.y = y1 + t * (y2 - y1);
+        }
+
+        pts.push_back(p);
+    }
+}
 
 
 /* ****************************** */
@@ -401,6 +659,7 @@ void draw_hull(vector<point2d> hull){
 
 
 
+
 /* ****************************** */
 /* Handler for key presses. called whenever a key is spressed */
 void keypress(unsigned char key, int x, int y) {
@@ -415,16 +674,16 @@ void keypress(unsigned char key, int x, int y) {
     POINT_INIT_MODE = (POINT_INIT_MODE+1) % NB_INIT_CHOICES; 
     switch (POINT_INIT_MODE) {
     case 0: 
-      initialize_points_circle(points, NPOINTS); 
+      initialize_points_hexagon(points, NPOINTS); 
       break; 
     case 1: 
-      initialize_points_cross(points, NPOINTS); 
+      initialize_points_wave(points, NPOINTS); 
       break; 
     case 2: 
-      initialize_points_horizontal_line(points, NPOINTS); 
+      initialize_points_diamond(points, NPOINTS); 
       break; 
     case 3: 
-      initialize_points_random(points, NPOINTS); 
+      initialize_points_honeycomb(points, NPOINTS); 
       break; 
     } //switch 
     //we changed the points, so we need to recompute the hull
